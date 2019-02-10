@@ -1,15 +1,36 @@
 const fs = require('fs');
 const Handlebars = require('handlebars');
+ const path = require('path');
+// const doAsync = require('doasync');
 
-const source = '<div>{{title}}</div>';
-const template = Handlebars.compile(source);
+// var source;
 
-const contents = template({title: 'Wohooo!'});
+// doAsync(fs).readFile('./template.html')
+//     .then((data) => console.log(data));
 
-fs.writeFile('contents.html', contents, err => {
-    if (err) {
-        return console.error(`Autsch! Failed to store template: ${err.message}.`);
-    }
+    // util = require("util");
+    var content;
+    console.log(content);
+    fs.readFile("template.html", 'utf8', function (err, data) {
+        if (err) {
+            console.log(err);
+            process.exit(1);
+        }
+        const template = Handlebars.compile(data);
+        const segments = ['current', 'lapsed', 'nondonor'];
+        for (i=0;i<segments.length;i++){
 
-    console.log(`Saved template!');
-});
+        const contents = template(
+          {
+            title: 'Wohooo!',
+            segment: segments[i]});
+
+        fs.writeFile(`contents ${segments[i]}.html`, contents, err => {
+            if (err) {
+                return console.error(`Autsch! Failed to store template: ${err.message}.`);
+            }
+
+            console.log('Saved template!');
+          })
+        };
+    });
