@@ -1,36 +1,52 @@
 const fs = require('fs');
 const Handlebars = require('handlebars');
- const path = require('path');
-// const doAsync = require('doasync');
 
-// var source;
+fs.readFile("template.html", 'utf8', function (err, data) {
+    if (err) {
+        console.log(err);
+        process.exit(1);
+    }
+    const template = Handlebars.compile(data);
+    const control = 'control.html'
+    const test = 'test.html'
+    const segments = {
+      currentC: {
+        name: 'current control',
+        url: `http://currenturl.com/${control}`
+      },
+      currentT: {
+        name: 'current test',
+        url: `http://currenturl.com/${test}`
+      },
+      lapsed: {
+        name: 'lapsed',
+        url: 'http://lapsedurl.com',
+        text: 'renew'
+      },
+      nondonor: {
+        name: 'nondonor',
+        url: 'http://nondonorurl.com',
+        text: 'join'
+      }
+    }
 
-// doAsync(fs).readFile('./template.html')
-//     .then((data) => console.log(data));
+    Object.keys(segments).forEach((seg) =>  {
+    const segment = segments[seg]
+    const contents = template(
+      {
+        title: 'City of Hope',
+        segment: segment.name,
+        url: segment.url,
+        text: segment.text
+      }
+    );
 
-    // util = require("util");
-    var content;
-    console.log(content);
-    fs.readFile("template.html", 'utf8', function (err, data) {
+    fs.writeFile(`contents ${segment.name}.html`, contents, err => {
         if (err) {
-            console.log(err);
-            process.exit(1);
+            return console.error(`Error! ${err.message}.`);
         }
-        const template = Handlebars.compile(data);
-        const segments = ['current', 'lapsed', 'nondonor'];
-        for (i=0;i<segments.length;i++){
-
-        const contents = template(
-          {
-            title: 'Wohooo!',
-            segment: segments[i]});
-
-        fs.writeFile(`contents ${segments[i]}.html`, contents, err => {
-            if (err) {
-                return console.error(`Autsch! Failed to store template: ${err.message}.`);
-            }
-
-            console.log('Saved template!');
-          })
-        };
-    });
+        console.log('Saved template!', seg);
+      })
+    }
+      )
+});
